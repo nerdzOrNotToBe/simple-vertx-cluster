@@ -1,4 +1,4 @@
-package java.com.spotter;
+package com.spotter;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
