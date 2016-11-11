@@ -1,4 +1,4 @@
-package java.com.spotter;
+package com.spotter;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
