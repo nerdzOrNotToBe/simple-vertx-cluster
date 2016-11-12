@@ -68,7 +68,7 @@ public class CustomLauncher extends VertxCommandLauncher implements VertxLifecyc
 		Config hazelcastConfig = new Config();
 		MulticastConfig multicastConfig=new MulticastConfig();
 		multicastConfig.setEnabled(false);
-		TcpIpConfig tcpIpConfig=new TcpIpConfig().addMember("10.42.*.*").setEnabled(true);
+		TcpIpConfig tcpIpConfig=new TcpIpConfig().addMember("10.42.0-255.0-255").setEnabled(true);
 		hazelcastConfig.getNetworkConfig().getJoin().setMulticastConfig(multicastConfig).setTcpIpConfig(tcpIpConfig);
 		GroupConfig groupConfig = new GroupConfig(groupName,groupPwd);
 		hazelcastConfig.setGroupConfig(groupConfig);
