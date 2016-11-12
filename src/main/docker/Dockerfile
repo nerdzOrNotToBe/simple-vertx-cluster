@@ -7,7 +7,7 @@ ENV VERTICLE_HOME /home/vertx
 ENV VERTICLE_REPO simple-vertx-cluster
 ENV APPLICATION_JAR="simple-vertx-cluster-1.0-SNAPSHOT-fat.jar"
 ENV APPLICATION_ARGS="-Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.SLF4JLogDelegateFactory -Dlog4j.configuration=file:./sl4j.properties"
-ENV VERTX_OPTS="-conf config.json"
+ENV VERTX_OPTS="-cluster -conf config.json"
 ###
 # The rest of the file should be fine.
 ###

@@ -2,7 +2,7 @@
 APPLICATION_DIR="."
 APPLICATION_JAR="simple-vertx-cluster-1.0-SNAPSHOT-fat.jar"
 APPLICATION_ARGS="-Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.SLF4JLogDelegateFactory -Dlog4j.configuration=file:./sl4j.properties"
-VERTX_OPTS="-conf config.json"
+VERTX_OPTS="-cluster -conf config.json"
 JAVA="java"
 OUT_FILE="${APPLICATION_DIR}"/out.log
 RUNNING_PID="${APPLICATION_DIR}"/RUNNING_PID
