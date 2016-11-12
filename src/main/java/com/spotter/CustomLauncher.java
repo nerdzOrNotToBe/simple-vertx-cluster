@@ -2,6 +2,8 @@ package com.spotter;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.MulticastConfig;
+import com.hazelcast.config.TcpIpConfig;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -64,6 +66,10 @@ public class CustomLauncher extends VertxCommandLauncher implements VertxLifecyc
 		logger.info("===================== Vertx CLuster Group =======================");
 		logger.info("group: " + groupName);
 		Config hazelcastConfig = new Config();
+		MulticastConfig multicastConfig=new MulticastConfig();
+		multicastConfig.setEnabled(false);
+		TcpIpConfig tcpIpConfig=new TcpIpConfig().addMember("10.42.*.*").setEnabled(true);
+		hazelcastConfig.getNetworkConfig().getJoin().setMulticastConfig(multicastConfig).setTcpIpConfig(tcpIpConfig);
 		GroupConfig groupConfig = new GroupConfig(groupName,groupPwd);
 		hazelcastConfig.setGroupConfig(groupConfig);
 		ClusterManager mgr = new HazelcastClusterManager(hazelcastConfig);
