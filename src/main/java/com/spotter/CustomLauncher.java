@@ -4,9 +4,11 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.config.TcpIpConfig;
+import com.hazelcast.spi.discovery.integration.DiscoveryServiceSettings;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.http.HttpClient;
 import io.vertx.core.impl.launcher.VertxCommandLauncher;
 import io.vertx.core.impl.launcher.VertxLifecycleHooks;
 import io.vertx.core.json.JsonObject;
@@ -67,9 +69,16 @@ public class CustomLauncher extends VertxCommandLauncher implements VertxLifecyc
 		logger.info("group: " + groupName);
 		Config hazelcastConfig = new Config();
 		MulticastConfig multicastConfig=new MulticastConfig();
-		multicastConfig.setEnabled(false);
-		TcpIpConfig tcpIpConfig=new TcpIpConfig().addMember("vertx.vertx1").setEnabled(true);
-		hazelcastConfig.getNetworkConfig().getJoin().setMulticastConfig(multicastConfig).setTcpIpConfig(tcpIpConfig);
+		multicastConfig.setEnabled(true);
+		HttpClient httpClient = Vertx.vertx().createHttpClient();
+		httpClient.get("http://rancher-metadata/latest/services/vertx/containers/", x -> {
+			x.bodyHandler(b -> {
+				logger.info(b.toString());
+			});
+		}).end();
+
+		//TcpIpConfig tcpIpConfig=new TcpIpConfig().setEnabled(true);
+		//hazelcastConfig.getNetworkConfig().getJoin().setMulticastConfig(multicastConfig).setTcpIpConfig(tcpIpConfig);
 		GroupConfig groupConfig = new GroupConfig(groupName,groupPwd);
 		hazelcastConfig.setGroupConfig(groupConfig);
 		ClusterManager mgr = new HazelcastClusterManager(hazelcastConfig);
@@ -82,7 +91,7 @@ public class CustomLauncher extends VertxCommandLauncher implements VertxLifecyc
 	 * @param vertx the created Vert.x instance
 	 */
 	public void afterStartingVertx(Vertx vertx) {
-
+		logger.info("ici");
 	}
 
 	/**
