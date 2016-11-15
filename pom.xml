@@ -152,9 +152,9 @@
                 <version>0.4.13</version>
                 <configuration>
                     <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
-                    <imageName>${docker.image}:${project.version}</imageName>
-                    <image>${docker.image}:${project.version}</image>
-                    <newName>${docker.image}:${project.version}</newName>
+                    <imageName>${docker.image}:latest</imageName>
+                    <image>${docker.image}:latest</image>
+                    <newName>${docker.image}:latest</newName>
                     <serverId>spotter-registry</serverId>
                     <registryUrl>https://10.34.0.252/v2/</registryUrl>
                     <resources>
