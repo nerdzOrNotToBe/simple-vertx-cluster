@@ -1,10 +1,11 @@
 package com.spotter;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.GroupConfig;
-import com.hazelcast.config.MulticastConfig;
-import com.hazelcast.config.TcpIpConfig;
+import com.hazelcast.config.*;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.instance.GroupProperty;
 import com.hazelcast.spi.discovery.integration.DiscoveryServiceSettings;
+import com.ranger.hazelcast.servicediscovery.RancherDiscoveryStrategyFactory;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -16,6 +17,8 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
+
+import java.net.InetAddress;
 
 /**
  * Created by dimitri on 12/11/2016.
@@ -57,31 +60,49 @@ public class CustomLauncher extends VertxCommandLauncher implements VertxLifecyc
 	 */
 	public void beforeStartingVertx(VertxOptions options) {
 		logger.info("===================== Before Starting Vertx =======================");
-		String groupName = System.getenv("vertx_cluster_name");
-		String groupPwd = System.getenv("vertx_cluster_pass");
+		String groupName = System.getenv("cluster-name");
+		String stackName = System.getenv("stack-name");
+		String envName = System.getenv("environment-name");
+		String rancherApi = System.getenv("rancher-api");
+		String groupPwd = System.getenv("cluster-pass");
 		if(groupName == null || groupName.isEmpty()){
 			groupName = "spotter";
 		}
 		if(groupPwd == null || groupPwd.isEmpty()){
 			groupPwd = "spotter";
 		}
-		logger.info("===================== Vertx CLuster Group =======================");
-		logger.info("group: " + groupName);
-		Config hazelcastConfig = new Config();
-		MulticastConfig multicastConfig=new MulticastConfig();
-		multicastConfig.setEnabled(true);
-		HttpClient httpClient = Vertx.vertx().createHttpClient();
-		httpClient.get("http://rancher-metadata/latest/services/vertx/containers/", x -> {
-			x.bodyHandler(b -> {
-				logger.info(b.toString());
-			});
-		}).end();
-
-		//TcpIpConfig tcpIpConfig=new TcpIpConfig().setEnabled(true);
-		//hazelcastConfig.getNetworkConfig().getJoin().setMulticastConfig(multicastConfig).setTcpIpConfig(tcpIpConfig);
+		if(stackName == null || groupName.isEmpty()){
+			stackName = "vertx1";
+		}
+		if(envName == null || groupPwd.isEmpty()){
+			envName = "Default";
+		}
+		if(rancherApi == null || groupName.isEmpty()){
+			rancherApi = "http://10.34.0.252:8080/v1";
+		}
+		logger.info("cluster name: " + groupName);
+		Config config = new Config();
+		config.setProperty(GroupProperty.DISCOVERY_SPI_ENABLED, "true");
+		config.setProperty(GroupProperty.DISCOVERY_SPI_PUBLIC_IP_ENABLED, "true");
+		config.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "false");
+		config.setProperty(GroupProperty.SOCKET_BIND_ANY, "false");
+		NetworkConfig networkConfig = config.getNetworkConfig();
+		//networkConfig.setInterfaces(new InterfacesConfig().addInterface("10.42.*.*").setEnabled(true));
+		//networkConfig.getInterfaces().addInterface(InetAddress.getLocalHost().getHostAddress()).setEnabled(true);
+		JoinConfig joinConfig = networkConfig.getJoin();
+		joinConfig.getTcpIpConfig().setEnabled(false);
+		joinConfig.getMulticastConfig().setEnabled(false);
+		joinConfig.getAwsConfig().setEnabled(false);
+		DiscoveryConfig discoveryConfig = joinConfig.getDiscoveryConfig();
+		DiscoveryStrategyConfig discoveryStrategyConfig = new DiscoveryStrategyConfig(new RancherDiscoveryStrategyFactory());
+		discoveryStrategyConfig.addProperty("cluster-name", groupName);
+		discoveryStrategyConfig.addProperty("stack-name", stackName);
+		discoveryStrategyConfig.addProperty("environment-name", envName);
+		discoveryStrategyConfig.addProperty("rancher-api", rancherApi);
+		discoveryConfig.addDiscoveryStrategyConfig(discoveryStrategyConfig);
 		GroupConfig groupConfig = new GroupConfig(groupName,groupPwd);
-		hazelcastConfig.setGroupConfig(groupConfig);
-		ClusterManager mgr = new HazelcastClusterManager(hazelcastConfig);
+		config.setGroupConfig(groupConfig);
+		ClusterManager mgr = new HazelcastClusterManager(config);
 		options.setClusterManager(mgr);
 	}
 
@@ -91,7 +112,6 @@ public class CustomLauncher extends VertxCommandLauncher implements VertxLifecyc
 	 * @param vertx the created Vert.x instance
 	 */
 	public void afterStartingVertx(Vertx vertx) {
-		logger.info("ici");
 	}
 
 	/**
