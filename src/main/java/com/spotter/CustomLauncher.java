@@ -87,8 +87,6 @@ public class CustomLauncher extends VertxCommandLauncher implements VertxLifecyc
 		config.setProperty(GroupProperty.SOCKET_CLIENT_BIND_ANY, "false");
 		config.setProperty(GroupProperty.SOCKET_BIND_ANY, "false");
 		NetworkConfig networkConfig = config.getNetworkConfig();
-		//networkConfig.setInterfaces(new InterfacesConfig().addInterface("10.42.*.*").setEnabled(true));
-		//networkConfig.getInterfaces().addInterface(InetAddress.getLocalHost().getHostAddress()).setEnabled(true);
 		JoinConfig joinConfig = networkConfig.getJoin();
 		joinConfig.getTcpIpConfig().setEnabled(false);
 		joinConfig.getMulticastConfig().setEnabled(false);
